@@ -88,6 +88,7 @@ find_package(Qt6 REQUIRED COMPONENTS
     Network
     WebSockets
     DBus
+    WebEngineQuick
 )
 
 # Find optional GStreamer bits for the WebRTC receiver path
@@ -144,6 +145,8 @@ qt_add_executable(crankshaft-ui-slim
     PreferencesService.cpp
     CoreClient.h
     CoreClient.cpp
+    WebUiBridge.h
+    WebUiBridge.cpp
 )
 target_compile_definitions(crankshaft-ui-slim PRIVATE CRANKSHAFT_AASDK_OLD_API)
 
@@ -171,6 +174,7 @@ target_link_libraries(crankshaft-ui-slim PRIVATE
     Qt6::Network
     Qt6::WebSockets
     Qt6::DBus
+    Qt6::WebEngineQuick
     ${GSTREAMER_LIBRARIES}
     ${GSTREAMER_APP_LIBRARIES}
     ${GSTREAMER_VIDEO_LIBRARIES}

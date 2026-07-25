@@ -20,5 +20,6 @@
 #pragma once
 
 #include <QString>
+#include "WebUiBridge.h"
 
 int runSlimUiApplication(int argc, char* argv[], const QString& version);

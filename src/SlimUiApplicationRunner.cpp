@@ -195,6 +195,7 @@ int runSlimUiApplication(int argc, char* argv[], const QString& version) {
         BluetoothAdapter bluetoothAdapter(services.androidAutoService());
         TouchEventForwarder touchForwarder(&androidAutoFacade, &services);
         ConnectionStateMachine connectionStateMachine(&androidAutoFacade);
+        WebUiBridge webUiBridge;
 
         PreferencesFacade preferencesFacade(&services);
         ErrorHandler errorHandler;
@@ -206,6 +207,8 @@ int runSlimUiApplication(int argc, char* argv[], const QString& version) {
                                      "Audio system initialization failed",
                                      ErrorHandler::Severity::Warning);
         }
+
+        webUiBridge.connectToServer();
 
         QQmlApplicationEngine engine;
 
@@ -226,6 +229,7 @@ int runSlimUiApplication(int argc, char* argv[], const QString& version) {
         engine.rootContext()->setContextProperty("_connectionStateMachine", &connectionStateMachine);
         engine.rootContext()->setContextProperty("_preferencesFacade", &preferencesFacade);
         engine.rootContext()->setContextProperty("_errorHandler", &errorHandler);
+        engine.rootContext()->setContextProperty("_webUiBridge", &webUiBridge);
 
         const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
 
