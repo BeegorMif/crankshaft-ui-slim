@@ -199,6 +199,22 @@ auto AndroidAutoFacade::retryConnection() -> void {
     startDiscovery();
 }
 
+auto AndroidAutoFacade::setNightMode(bool nightMode) -> void {
+    auto* aaService = m_serviceProvider->androidAutoService();
+    if (!aaService) {
+        reportError("AndroidAuto service not available");
+        return;
+    }
+
+    Logger::instance().infoContext(
+        "AndroidAutoFacade",
+        QString("Setting night mode: %1").arg(nightMode ? "on" : "off"));
+
+    aaService->publish(
+        QStringLiteral("android-auto/display/nightMode"),
+        QJsonObject{{QStringLiteral("nightMode"), nightMode}});
+}
+
 // EventBus slot handlers
 auto AndroidAutoFacade::onCoreConnectionStateChanged(int state) -> void {
     Logger::instance().debugContext("AndroidAutoFacade",

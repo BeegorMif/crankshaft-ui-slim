@@ -534,6 +534,11 @@ ApplicationWindow {
                             root.aaOverlayVisible = visible
                             root.updateFullscreenModeForCurrentState()
                         }
+                        function onNightModeChanged(nightMode) {
+                            if (_androidAutoFacade) {
+                                _androidAutoFacade.setNightMode(nightMode)
+                            }
+                        }
                     }
 
                     function videoContentRect() {

@@ -84,6 +84,18 @@ void WebUiBridge::handleMessage(const QJsonObject& obj) {
         return;
     }
 
+    if (type == QLatin1String("system") && action == QLatin1String("darkMode")) {
+        const QJsonObject payload = obj.value("payload").toObject();
+        const bool nightMode = payload.value("value").toBool();
+
+        emit nightModeChanged(nightMode);
+        Logger::instance().infoContext("WebUiBridge",
+            QString("Night mode -> %1 (source=%2)")
+                .arg(nightMode ? "on" : "off")
+                .arg(payload.value("source").toString()));
+        return;
+    }
+    
     Logger::instance().debugContext("WebUiBridge",
         QString("Ignoring message type=%1 action=%2").arg(type, action));
 }
