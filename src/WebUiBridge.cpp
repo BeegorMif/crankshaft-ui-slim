@@ -70,18 +70,20 @@ void WebUiBridge::handleMessage(const QJsonObject& obj) {
     const QString type = obj.value("type").toString();
     const QString action = obj.value("action").toString();
 
-    if (type != QLatin1String("browser") || action != QLatin1String("tabChange")) {
+    if (type == QLatin1String("browser") && action == QLatin1String("tabChange")) {
+        const QJsonObject payload = obj.value("payload").toObject();
+        const QString tab = payload.value("tab").toString();
+
+        const bool shouldShowAA = (tab == QLatin1String("android_auto"));
+        if (shouldShowAA != m_aaOverlayVisible) {
+            m_aaOverlayVisible = shouldShowAA;
+            emit aaOverlayVisibleChanged(m_aaOverlayVisible);
+            Logger::instance().infoContext("WebUiBridge",
+                QString("aaOverlayVisible -> %1 (tab=%2)").arg(m_aaOverlayVisible).arg(tab));
+        }
         return;
     }
 
-    const QJsonObject payload = obj.value("payload").toObject();
-    const QString tab = payload.value("tab").toString();
-
-    const bool shouldShowAA = (tab == QLatin1String("android_auto"));
-    if (shouldShowAA != m_aaOverlayVisible) {
-        m_aaOverlayVisible = shouldShowAA;
-        emit aaOverlayVisibleChanged(m_aaOverlayVisible);
-        Logger::instance().infoContext("WebUiBridge",
-            QString("aaOverlayVisible -> %1 (tab=%2)").arg(m_aaOverlayVisible).arg(tab));
-    }
+    Logger::instance().debugContext("WebUiBridge",
+        QString("Ignoring message type=%1 action=%2").arg(type, action));
 }
