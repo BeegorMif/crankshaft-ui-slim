@@ -26,6 +26,7 @@
 #include <QDir>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QtWebEngineQuick/QtWebEngineQuick>
 #include <QQmlContext>
 #include <QQmlError>
 #include <QQuickStyle>
@@ -119,6 +120,8 @@ auto watchdogIntervalMs() -> int { return 0; }
 }  // namespace
 
 int runSlimUiApplication(int argc, char* argv[], const QString& version) {
+    QtWebEngineQuick::initialize();
+
     QQuickStyle::setStyle("Material");
 
     QGuiApplication app(argc, argv);
