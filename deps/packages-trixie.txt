@@ -16,6 +16,7 @@ qt6-websockets-dev
 qt6-tools-dev
 qt6-tools-dev-tools
 qt6-l10n-tools
+qt6-webengine-dev
 libqt6sql6-sqlite
 libgstreamer1.0-dev
 libgstreamer-plugins-base1.0-dev
