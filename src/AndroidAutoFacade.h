@@ -173,6 +173,7 @@ public:
     Q_INVOKABLE void retryConnection();
     // NOLINTEND(modernize-use-trailing-return-type)
 
+    Q_INVOKABLE void setNightMode(bool nightMode);
 signals:
     // Connection state changes
     void connectionStateChanged(int state);

@@ -22,6 +22,7 @@ import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Layouts
 import QtQuick.Window
+import QtWebEngine
 import "components"
 
 ApplicationWindow {
@@ -41,7 +42,8 @@ ApplicationWindow {
         root.visibility === Window.FullScreen &&
         navigationController.currentViewState === navigationController.viewStateAAProjection &&
         !navigationController.settingsPanelVisible
-    
+    property bool aaOverlayVisible: true
+    property int menuWidth: 75
     // Theme Manager - centralized theme control
     ThemeManager {
         id: theme
@@ -262,8 +264,17 @@ ApplicationWindow {
     
     
     // Main content area with state-based view switching
+
+    WebEngineView {
+        id: webUi
+        anchors.fill: parent
+        z: -1
+        url: "http://localhost:3000"   // dev server for now; swap to a built qrc:/ path later
+    }
     Item {
         id: mainContent
+        visible: root.aaOverlayVisible
+        enabled: root.aaOverlayVisible
         anchors.centerIn: parent
         width: (root.displayRotation === 90 || root.displayRotation === 270) ? parent.height : parent.width
         height: (root.displayRotation === 90 || root.displayRotation === 270) ? parent.width : parent.height
@@ -277,7 +288,11 @@ ApplicationWindow {
         
         // Background
         Rectangle {
-            anchors.fill: parent
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.rightMargin: root.menuWidth
             color: theme.colors.background
         }
         
@@ -322,7 +337,11 @@ ApplicationWindow {
 
         ConnectionStatusView {
             id: connectionStatusView
-            anchors.fill: parent
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.rightMargin: root.menuWidth
             visible: navigationController.currentViewState === navigationController.viewStateConnectionStatus
             themeManager: theme
             androidAutoFacade: _androidAutoFacade
@@ -331,7 +350,11 @@ ApplicationWindow {
         // AndroidAuto Projection View (primary)
         Rectangle {
             id: aaProjectionView
-            anchors.fill: parent
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.rightMargin: root.menuWidth
             color: theme.colors.background
             visible: navigationController.currentViewState === navigationController.viewStateAAProjection ||
                      navigationController.currentViewState === navigationController.viewStateSettings
@@ -502,6 +525,19 @@ ApplicationWindow {
 
                         function onFallbackRecommendedChanged() {
                             projectionSurface.recomputeRenderMode("receiver.fallbackRecommendedChanged")
+                        }
+                    }
+
+                    Connections {
+                        target: _webUiBridge
+                        function onAaOverlayVisibleChanged(visible) {
+                            root.aaOverlayVisible = visible
+                            root.updateFullscreenModeForCurrentState()
+                        }
+                        function onNightModeChanged(nightMode) {
+                            if (_androidAutoFacade) {
+                                _androidAutoFacade.setNightMode(nightMode)
+                            }
                         }
                     }
 
