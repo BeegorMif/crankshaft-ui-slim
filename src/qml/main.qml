@@ -22,7 +22,6 @@ import QtQuick.Controls
 import QtQuick.Controls.Material
 import QtQuick.Layouts
 import QtQuick.Window
-import QtWebEngine
 import "components"
 
 ApplicationWindow {
@@ -265,12 +264,6 @@ ApplicationWindow {
     
     // Main content area with state-based view switching
 
-    WebEngineView {
-        id: webUi
-        anchors.fill: parent
-        z: -1
-        url: "http://localhost:3000"   // dev server for now; swap to a built qrc:/ path later
-    }
     Item {
         id: mainContent
         visible: root.aaOverlayVisible
