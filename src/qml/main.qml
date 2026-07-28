@@ -43,7 +43,7 @@ ApplicationWindow {
         navigationController.currentViewState === navigationController.viewStateAAProjection &&
         !navigationController.settingsPanelVisible
     property bool aaOverlayVisible: true
-    property int menuWidth: 75
+    property int menuWidth: 70
     // Theme Manager - centralized theme control
     ThemeManager {
         id: theme
