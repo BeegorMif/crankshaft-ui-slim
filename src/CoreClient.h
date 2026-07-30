@@ -32,6 +32,11 @@
 #include <QVariantMap>
 #include <QWebSocket>
 #include <memory>
+#include <QAudioSink>
+#include <QAudioFormat>
+#include <QIODevice>
+#include <QMediaDevices>
+#include <QQueue>
 
 class CoreClient : public QObject {
     Q_OBJECT
@@ -82,6 +87,9 @@ private slots:
     void onWebSocketDisconnected();
     void onWebSocketError(QAbstractSocket::SocketError error);
     void onWebSocketTextReceived(const QString& message);
+    void ensureAudioSink(int sampleRate, int channels);
+    void teardownAudioSink();
+    void writeAudioChunk(const QByteArray& pcmData);
 
 private:
     auto setState(ConnectionState state) -> void;
@@ -111,6 +119,14 @@ private:
     bool m_hasLoggedFirstVideoFrame = false;
     bool m_projectionReady = false;
     bool m_videoReady = false;
+    bool m_hasLoggedFirstAudioChunk = false;
+    QAudioSink* m_audioSink = nullptr;
+    QIODevice* m_audioDevice = nullptr;
+    int m_audioSampleRate = 0;
+    int m_audioChannels = 0;
+    QQueue<QByteArray> m_audioPrefillQueue;
+    bool m_audioPrefilled = false;
+    static constexpr int kAudioPrefillChunks = 5;
     bool m_audioReady = false;
     QString m_videoTransportMode;
     QString m_videoTransportRequestedMode;
