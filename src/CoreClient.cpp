@@ -366,6 +366,7 @@ auto CoreClient::connectToDevice(const QString& deviceId) -> void {
 }
 
 auto CoreClient::disconnect() -> void {
+    teardownAudioSink();
     emit audioStateChanged(false);
     emit videoStateChanged(false);
     emit projectionReadyChanged(false);
@@ -609,6 +610,7 @@ auto CoreClient::clearProjectionState(bool emitSignals, bool clearTransportMode)
         emit videoStateChanged(false);
     }
     if (audioChanged) {
+        teardownAudioSink();
         emit audioStateChanged(false);
     }
 }
@@ -621,6 +623,70 @@ void CoreClient::onWebSocketTextReceived(const QString& message) {
     }
 
     parseAndHandleEvent(doc);
+}
+
+void CoreClient::ensureAudioSink(int sampleRate, int channels) {
+    if (sampleRate <= 0 || channels <= 0) {
+        return;
+    }
+
+    if (m_audioSink && sampleRate == m_audioSampleRate && channels == m_audioChannels) {
+        return;
+    }
+
+    teardownAudioSink();
+
+    QAudioFormat format;
+    format.setSampleRate(sampleRate);
+    format.setChannelCount(channels);
+    format.setSampleFormat(QAudioFormat::Int16);
+
+    const QAudioDevice outputDevice = QMediaDevices::defaultAudioOutput();
+    if (!outputDevice.isFormatSupported(format)) {
+        Logger::instance().warningContext(
+            "CoreClient", QString("Audio format not supported: %1Hz %2ch")
+                              .arg(sampleRate).arg(channels));
+        return;
+    }
+
+    m_audioSink = new QAudioSink(outputDevice, format, this);
+    m_audioDevice = m_audioSink->start();
+    m_audioSampleRate = sampleRate;
+    m_audioChannels = channels;
+    m_audioReady = true;
+    emit audioStateChanged(true);
+
+    Logger::instance().infoContext(
+        "CoreClient", QString("Audio sink started: %1Hz %2ch").arg(sampleRate).arg(channels));
+}
+
+void CoreClient::teardownAudioSink() {
+    if (m_audioSink) {
+        m_audioSink->stop();
+        delete m_audioSink;
+        m_audioSink = nullptr;
+        m_audioDevice = nullptr;
+        m_audioSampleRate = 0;
+        m_audioChannels = 0;
+    }
+    m_audioPrefillQueue.clear();
+    m_audioPrefilled = false;
+}
+
+void CoreClient::writeAudioChunk(const QByteArray& pcmData) {
+    if (!m_audioPrefilled) {
+        m_audioPrefillQueue.enqueue(pcmData);
+        if (m_audioPrefillQueue.size() < kAudioPrefillChunks) {
+            return;  // still filling the buffer, don't play yet
+        }
+        m_audioPrefilled = true;
+        while (!m_audioPrefillQueue.isEmpty()) {
+            m_audioDevice->write(m_audioPrefillQueue.dequeue());
+        }
+        return;
+    }
+
+    m_audioDevice->write(pcmData);
 }
 
 auto CoreClient::parseAndHandleEvent(const QJsonDocument& doc) -> void {
@@ -680,6 +746,7 @@ auto CoreClient::parseAndHandleEvent(const QJsonDocument& doc) -> void {
             m_audioReady = false;
             emit connectedDeviceChanged(QString());
             emit videoStateChanged(false);
+            teardownAudioSink();
             emit audioStateChanged(false);
             emit projectionReadyChanged(false);
             emit videoFrameReceived(QString(), 0, 0);
@@ -837,6 +904,27 @@ auto CoreClient::parseAndHandleEvent(const QJsonDocument& doc) -> void {
                 if (!m_videoReady) {
                     m_videoReady = true;
                     emit videoStateChanged(true);
+                }
+            }
+        } else if (topic == "android-auto/media/audio-chunk") {
+            const QString encoding = payload.value("encoding").toString();
+            const QString encodedData = payload.value("data").toString();
+            const int sampleRate = payload.value("sampleRate").toInt();
+            const int channels = payload.value("channels").toInt();
+
+            if (!encodedData.isEmpty() && encoding == "pcm_s16le_base64") {
+                if (!m_hasLoggedFirstAudioChunk) {
+                    m_hasLoggedFirstAudioChunk = true;
+                    Logger::instance().infoContext(
+                        "CoreClient", "First android-auto/media/audio-chunk event received",
+                        {{"sampleRate", sampleRate}, {"channels", channels}});
+                }
+
+                ensureAudioSink(sampleRate, channels);
+
+                const QByteArray pcmData = QByteArray::fromBase64(encodedData.toUtf8());
+                if (m_audioDevice && !pcmData.isEmpty()) {
+                    writeAudioChunk(pcmData);
                 }
             }
         } else if (topic.startsWith(QStringLiteral("android-auto/webrtc/"))) {
