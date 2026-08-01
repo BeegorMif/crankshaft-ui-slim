@@ -65,7 +65,8 @@ public:
 
     static QSize resolvePublishedDisplayResolution(const QSize& renderedSize,
                                                    const QSize& screenSize = QSize(),
-                                                   qreal devicePixelRatio = 1.0);
+                                                   qreal devicePixelRatio = 1.0,
+                                                   bool isFullscreen = false);
 
     // Property getters/setters
     [[nodiscard]] auto displaySize() const -> QSize;

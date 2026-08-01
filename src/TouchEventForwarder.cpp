@@ -26,6 +26,7 @@
 #include <QGuiApplication>
 #include <QJsonObject>
 #include <QScreen>
+#include <QWindow>
 
 TouchEventForwarder::TouchEventForwarder(AndroidAutoFacade* androidAutoFacade,
                                          ServiceProvider* serviceProvider, QObject* parent)
@@ -65,14 +66,14 @@ QSize TouchEventForwarder::displaySize() const { return m_displaySize; }
 
 QSize TouchEventForwarder::resolvePublishedDisplayResolution(const QSize& renderedSize,
                                                               const QSize& screenSize,
-                                                              qreal devicePixelRatio) {
-    if (screenSize.isValid() && screenSize.width() > 0 && screenSize.height() > 0) {
-        const qreal ratio = qMax<qreal>(1.0, devicePixelRatio);
-        return QSize(qRound(screenSize.width() * ratio), qRound(screenSize.height() * ratio));
-    }
-
-    return renderedSize;
-}
+                                                              qreal devicePixelRatio,
+                                                              bool isFullscreen) {
+    if (isFullscreen && screenSize.isValid() && screenSize.width() > 0 && screenSize.height() > 0) {
+         const qreal ratio = qMax<qreal>(1.0, devicePixelRatio);
+         return QSize(qRound(screenSize.width() * ratio), qRound(screenSize.height() * ratio));
+     }
+     return renderedSize;
+ }
 
 auto TouchEventForwarder::setDisplaySize(const QSize& size) -> void {
     const bool sizeActuallyChanged = (m_displaySize != size);
@@ -92,9 +93,15 @@ auto TouchEventForwarder::setDisplaySize(const QSize& size) -> void {
         screenSize = screen->geometry().size();
         devicePixelRatio = screen->devicePixelRatio();
     }
+    bool isFullscreenNow = false;
+    for (const QWindow* window : QGuiApplication::topLevelWindows()) {
+        if (window->visibility() == QWindow::FullScreen) {
+            isFullscreenNow = true;
+        }
+    }
 
     const QSize publishedDisplayResolution =
-        resolvePublishedDisplayResolution(size, screenSize, devicePixelRatio);
+        resolvePublishedDisplayResolution(size, screenSize, devicePixelRatio, isFullscreenNow);
 
     // Only publish the display resolution to the core service when it has
     // actually changed.  Without this guard the QML onProjectionFrameChanged
@@ -351,17 +358,7 @@ auto TouchEventForwarder::scaleCoordinates(const QPointF& point) const -> QPoint
         return point;
     }
 
-    // Calculate scaling factors
-    qreal scaleX = static_cast<qreal>(m_androidAutoSize.width()) / m_displaySize.width();
-    qreal scaleY = static_cast<qreal>(m_androidAutoSize.height()) / m_displaySize.height();
-
-    // Scale coordinates
-    qreal scaledX = point.x() * scaleX;
-    qreal scaledY = point.y() * scaleY;
-
-    // Clamp to AndroidAuto bounds
-    scaledX = qBound(0.0, scaledX, static_cast<qreal>(m_androidAutoSize.width() - 1));
-    scaledY = qBound(0.0, scaledY, static_cast<qreal>(m_androidAutoSize.height() - 1));
-
-    return QPointF(scaledX, scaledY);
+    const qreal fracX = qBound(0.0, point.x() / m_displaySize.width(), 1.0);
+    const qreal fracY = qBound(0.0, point.y() / m_displaySize.height(), 1.0);
+    return QPointF(fracX, fracY);
 }
