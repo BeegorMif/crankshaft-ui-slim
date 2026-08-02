@@ -349,7 +349,7 @@ ApplicationWindow {
                      navigationController.currentViewState === navigationController.viewStateSettings
             
             // Placeholder for actual AA projection content
-            ColumnLayout {
+            Item {
                 anchors.fill: parent
                 
                 // Toolbar
