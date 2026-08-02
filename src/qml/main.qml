@@ -128,11 +128,10 @@ ApplicationWindow {
         if (state === 4) { // Error
             navigationController.showConnectionStatus("", "", true)
             updateFullscreenModeForCurrentState()
-            if (_connectionStateMachine && _connectionStateMachine.lastError !== "" &&
-                    _connectionStateMachine.lastError !== lastShownConnectionError) {
-                lastShownConnectionError = _connectionStateMachine.lastError
-                errorDialog.showError("CORE_CONNECTION", _connectionStateMachine.lastError, 2, true)
-            }
+            // Core connection loss is expected to self-heal via
+            // ConnectionStateMachine's own retry loop — the non-blocking
+            // status view above already communicates this. No need to
+            // interrupt with a modal Retry/Cancel dialog.
             return
         }
 
@@ -149,25 +148,15 @@ ApplicationWindow {
         }
 
         function onLastErrorChanged(error) {
-            if (!error || error === "") {
-                return
-            }
-
-            if (error !== lastShownConnectionError) {
-                lastShownConnectionError = error
-                errorDialog.showError("CORE_CONNECTION", error, 2, true)
-            }
+            // Core connection loss is expected to self-heal via
+            // ConnectionStateMachine's own retry loop. The non-blocking
+            // status view (shown via updateViewForConnectionState) already
+            // communicates this — no need for a modal here.
         }
 
         function onMaxRetriesReached() {
             if (!reconnectionPrompt.visible) {
                 reconnectionPrompt.open()
-            }
-        }
-
-        function onConnectionRecovered() {
-            if (reconnectionPrompt.visible) {
-                reconnectionPrompt.close()
             }
         }
     }
