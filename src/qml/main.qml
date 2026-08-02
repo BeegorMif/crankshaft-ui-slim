@@ -253,7 +253,13 @@ ApplicationWindow {
     
     
     // Main content area with state-based view switching
-
+    WebEngineProfile {
+        id: webUiProfile
+        storageName: "crankshaft-webui"
+        offTheRecord: false
+        persistentCookiesPolicy: WebEngineProfile.ForcePersistentCookies
+        httpCacheType: WebEngineProfile.DiskHttpCache
+    }
     WebEngineView {
         id: webUi
         anchors.fill: parent
