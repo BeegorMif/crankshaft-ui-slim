@@ -351,14 +351,16 @@ ApplicationWindow {
             // Placeholder for actual AA projection content
             ColumnLayout {
                 anchors.fill: parent
-                spacing: 0
                 
                 // Toolbar
                 Rectangle {
+                    id: toolbar
                     visible: !root.immersiveProjectionMode
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: visible ? theme.dimensions.toolbarHeight : 0
-                    height: visible ? theme.dimensions.toolbarHeight : 0
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    height: theme.dimensions.toolbarHeight
+                    z: 10
                     color: theme.colors.surface
                     border.color: theme.colors.border
                     border.width: 1
@@ -413,8 +415,7 @@ ApplicationWindow {
                 // AA Content area (would show actual projection here)
                 Rectangle {
                     id: projectionSurface
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    anchors.fill: parent
                     color: theme.colors.background
                     readonly property bool webRtcSelected: _androidAutoFacade && _androidAutoFacade.videoTransportMode && _androidAutoFacade.videoTransportMode.toLowerCase() === "webrtc"
                     readonly property bool webRtcHealthy: _androidAutoWebRtcReceiver && _androidAutoWebRtcReceiver.active && _androidAutoWebRtcReceiver.healthy
