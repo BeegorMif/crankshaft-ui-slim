@@ -5,6 +5,7 @@ BUILD_TYPE="${BUILD_TYPE:-Release}"
 BUILD_TESTS="${BUILD_TESTS:-ON}"
 BUILD_PACKAGE="${BUILD_PACKAGE:-OFF}"
 BUILD_DIR="${BUILD_DIR:-build-${BUILD_TYPE,,}}"
+BUILD_INSTALL="${BUILD_INSTALL:-OFF}"
 SOURCE_DIR="${SOURCE_DIR:-src}"
 JOBS="${JOBS:-$(nproc)}"
 CLEAN="${CLEAN:-OFF}"
@@ -45,6 +46,9 @@ for arg in "$@"; do
     --sbom-only)
       BUILD_SBOM="ON"
       SBOM_ONLY="ON"
+      ;;
+    --install)
+      BUILD_INSTALL="ON"
       ;;
   esac
 done
@@ -321,6 +325,10 @@ if [[ "${BUILD_SBOM}" == "ON" ]]; then
     exit 1
   fi
   generate_sboms
+fi
+if [[ "${BUILD_INSTALL}" == "ON" ]]; then
+  log "Installing"
+  cmake --install "${BUILD_DIR}"
 fi
 
 log "Done"
