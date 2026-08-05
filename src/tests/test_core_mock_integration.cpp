@@ -187,7 +187,7 @@ private slots:
 
     void testDisplayResolutionPublishingUsesScreenAwareScaling() {
         const QSize resolved = TouchEventForwarder::resolvePublishedDisplayResolution(
-            QSize(1280, 720), QSize(1920, 1080), 1.5);
+            QSize(1280, 720), QSize(1920, 1080), 1.5, true);
 
         QCOMPARE(resolved, QSize(2880, 1620));
     }
