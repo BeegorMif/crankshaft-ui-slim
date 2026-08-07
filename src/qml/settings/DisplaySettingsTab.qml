@@ -49,7 +49,7 @@ Item {
                     Layout.fillWidth: true
                     showLabel: false
                     currentRotation: root.prefs ? root.prefs.displayRotation : 0
-                    onRotationChanged: (newRotation) => {
+                    onRotationRequested: (newRotation) => {
                         if (root.prefs) {
                             root.prefs.displayRotation = newRotation
                         }

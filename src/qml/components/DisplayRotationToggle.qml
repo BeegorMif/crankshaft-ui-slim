@@ -16,7 +16,7 @@ ColumnLayout {
     property bool showLabel: true
     property string titleText: qsTr("Display Rotation", "DisplayRotationToggle")
 
-    signal rotationChanged(int newRotation)
+    signal rotationRequested(int newRotation)
 
     ButtonGroup {
         id: rotationGroup
