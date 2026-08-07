@@ -18,7 +18,7 @@
 [Unit]
 Description=Crankshaft Slim AndroidAuto UI Service
 Documentation=https://github.com/opencardev/crankshaft-ui-slim
-After=crankshaft-ui-slim-display-setup.service crankshaft-core.service network.target
+After=crankshaft-ui-slim-display-setup.service crankshaft-core.service
 Requires=crankshaft-ui-slim-display-setup.service crankshaft-core.service
 
 [Service]
