@@ -56,9 +56,12 @@ case "$1" in
         mkdir -p /var/lib/crankshaft/slim-ui/.local/share || true
         mkdir -p /var/lib/crankshaft/slim-ui/.local/state || true
         mkdir -p /var/log/crankshaft || true
+        # Qt WebEngine persistent profile/cache
+        mkdir -p /var/lib/crankshaft/slim-ui/webengine || true
+        mkdir -p /var/cache/crankshaft/webengine || true
         chown -R crankshaft:crankshaft /var/lib/crankshaft || true
         chown -R crankshaft:crankshaft /var/log/crankshaft || true
-        
+
         # Set permissions for QML cache directory
         mkdir -p /var/cache/crankshaft || true
         chown -R crankshaft:crankshaft /var/cache/crankshaft || true

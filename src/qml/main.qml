@@ -255,13 +255,18 @@ ApplicationWindow {
     // Main content area with state-based view switching
     WebEngineProfile {
         id: webUiProfile
+
         storageName: "crankshaft-webui"
+        persistentStoragePath: "/var/lib/crankshaft/slim-ui/webengine"
+        cachePath: "/var/cache/crankshaft/webengine"
+
         offTheRecord: false
         persistentCookiesPolicy: WebEngineProfile.ForcePersistentCookies
         httpCacheType: WebEngineProfile.DiskHttpCache
     }
     WebEngineView {
         id: webUi
+        profile: webUiProfile
         anchors.fill: parent
         z: -1
         url: "http://localhost:3000"   // dev server for now; swap to a built qrc:/ path later
