@@ -260,10 +260,25 @@ auto CoreClient::subscribeToTopics() -> void {
     QJsonDocument doc(subscription);
     m_webSocket->sendTextMessage(doc.toJson(QJsonDocument::Compact));
 
-    QJsonObject mediaSubscription;
-    mediaSubscription["type"] = "subscribe";
-    mediaSubscription["topic"] = "android-auto/media/*";
-    m_webSocket->sendTextMessage(QJsonDocument(mediaSubscription).toJson(QJsonDocument::Compact));
+    // QJsonObject mediaSubscription;
+    // mediaSubscription["type"] = "subscribe";
+    // mediaSubscription["topic"] = "android-auto/media/*";
+    // m_webSocket->sendTextMessage(QJsonDocument(mediaSubscription).toJson(QJsonDocument::Compact));
+
+    QJsonObject videoChunkSubscription;
+    videoChunkSubscription["type"] = "subscribe";
+    videoChunkSubscription["topic"] = "android-auto/media/video-frame";
+    m_webSocket->sendTextMessage(QJsonDocument(videoChunkSubscription).toJson(QJsonDocument::Compact));
+
+    QJsonObject metadataSubscription;
+    metadataSubscription["type"] = "subscribe";
+    metadataSubscription["topic"] = "android-auto/media/metadata";
+    m_webSocket->sendTextMessage(QJsonDocument(metadataSubscription).toJson(QJsonDocument::Compact));
+
+    QJsonObject playbackSubscription;
+    playbackSubscription["type"] = "subscribe";
+    playbackSubscription["topic"] = "android-auto/media/playback";
+    m_webSocket->sendTextMessage(QJsonDocument(playbackSubscription).toJson(QJsonDocument::Compact));
 
     QJsonObject webRtcSubscription;
     webRtcSubscription["type"] = "subscribe";
