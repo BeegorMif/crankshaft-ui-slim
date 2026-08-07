@@ -18,21 +18,17 @@
 [Unit]
 Description=Crankshaft Slim AndroidAuto UI Service
 Documentation=https://github.com/opencardev/crankshaft-ui-slim
-After=crankshaft-ui-slim-display-setup.service crankshaft-core.service
-Requires=crankshaft-ui-slim-display-setup.service crankshaft-core.service
 
 [Service]
 Type=notify
 NotifyAccess=main
 User=crankshaft
 Group=crankshaft
-ExecStartPre=/bin/sh -c 'for i in $(seq 1 40); do nc -z 127.0.0.1 8080 && exit 0; sleep 0.25; done; exit 1'
 ExecStart=/usr/bin/crankshaft-ui-slim
 Restart=on-failure
 RestartSec=5
 StandardOutput=journal
 StandardError=journal
-EnvironmentFile=-/run/crankshaft/ui-slim-display.env
 
 # Service user has no login home; provide explicit writable runtime/data paths.
 Environment="HOME=/var/lib/crankshaft/slim-ui"
@@ -64,7 +60,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/var/lib/crankshaft /var/log/crankshaft /var/cache/crankshaft /run/crankshaft
+ReadWritePaths=/var/lib/crankshaft /var/log/crankshaft /var/cache/crankshaft
 ProtectKernelTunables=true
 ProtectKernelModules=true
 ProtectControlGroups=true
