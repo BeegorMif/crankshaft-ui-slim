@@ -44,7 +44,7 @@ ColumnLayout {
             onClicked: {
                 if (checked) {
                     rotationToggle.currentRotation = 0
-                    rotationToggle.rotationChanged(0)
+                    rotationToggle.rotationRequested(0)
                 }
             }
         }
@@ -59,7 +59,7 @@ ColumnLayout {
             onClicked: {
                 if (checked) {
                     rotationToggle.currentRotation = 90
-                    rotationToggle.rotationChanged(90)
+                    rotationToggle.rotationRequested(90)
                 }
             }
         }
@@ -74,7 +74,7 @@ ColumnLayout {
             onClicked: {
                 if (checked) {
                     rotationToggle.currentRotation = 180
-                    rotationToggle.rotationChanged(180)
+                    rotationToggle.rotationRequested(180)
                 }
             }
         }
@@ -89,7 +89,7 @@ ColumnLayout {
             onClicked: {
                 if (checked) {
                     rotationToggle.currentRotation = 270
-                    rotationToggle.rotationChanged(270)
+                    rotationToggle.rotationRequested(270)
                 }
             }
         }

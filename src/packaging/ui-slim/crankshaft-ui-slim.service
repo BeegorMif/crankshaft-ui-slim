@@ -18,6 +18,7 @@
 [Unit]
 Description=Crankshaft Slim AndroidAuto UI Service
 Documentation=https://github.com/opencardev/crankshaft-ui-slim
+After=dash-server.service
 
 [Service]
 Type=notify
@@ -38,6 +39,7 @@ Environment="XDG_STATE_HOME=/var/lib/crankshaft/slim-ui/.local/state"
 Environment="XDG_CACHE_HOME=/var/cache/crankshaft"
 
 # Environment for Qt platform (EGLFS for physical display, VNC for remote)
+Environment="QTWEBENGINE_CHROMIUM_FLAGS=--disable-vulkan --disable-gpu --disable-gpu-compositing --disable-gpu-vsync"
 Environment="QT_QPA_PLATFORM=eglfs"
 Environment="QT_QPA_EGLFS_INTEGRATION=eglfs_kms"
 Environment="QT_QPA_EGLFS_ALWAYS_SET_MODE=1"
