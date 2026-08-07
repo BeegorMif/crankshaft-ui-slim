@@ -18,6 +18,7 @@
  */
 
 #include "AndroidAutoFacade.h"
+#include "AndroidAutoImageProvider.h"
 
 #include "CoreClient.h"
 #include "Logger.h"
@@ -36,23 +37,13 @@ AndroidAutoFacade::AndroidAutoFacade(ServiceProvider* serviceProvider, QObject* 
       m_isVideoActive(false),
       m_isAudioActive(false),
       m_isProjectionReady(false),
-      m_projectionFrameUrl(),
       m_projectionWidth(0),
-      m_projectionHeight(0) {
+      m_projectionHeight(0),
+      m_projectionFrameVersion(0) {
     if (!m_serviceProvider) {
         Logger::instance().errorContext("AndroidAutoFacade", "ServiceProvider is null");
         return;
     }
-
-        m_videoInactiveDebounceTimer.setSingleShot(true);
-        m_videoInactiveDebounceTimer.setInterval(350);
-        connect(&m_videoInactiveDebounceTimer, &QTimer::timeout, this,
-            &AndroidAutoFacade::onVideoInactiveDebounceTimeout);
-
-        m_projectionFrameIntervalMs = kProjectionFrameIntervalMs;
-        m_projectionFrameDispatchTimer.setSingleShot(true);
-        connect(&m_projectionFrameDispatchTimer, &QTimer::timeout, this,
-            &AndroidAutoFacade::onProjectionFrameDispatchTimeout);
 
     setupEventBusConnections();
 
@@ -76,20 +67,16 @@ auto AndroidAutoFacade::isAudioActive() const -> bool { return m_isAudioActive; 
 
 auto AndroidAutoFacade::isProjectionReady() const -> bool { return m_isProjectionReady; }
 
-auto AndroidAutoFacade::projectionFrameUrl() const -> QString { return m_projectionFrameUrl; }
-
 auto AndroidAutoFacade::videoTransportMode() const -> QString { return m_videoTransportMode; }
 
 auto AndroidAutoFacade::projectionWidth() const -> int { return m_projectionWidth; }
 
 auto AndroidAutoFacade::projectionHeight() const -> int { return m_projectionHeight; }
 
+auto AndroidAutoFacade::projectionFrameVersion() const -> int { return m_projectionFrameVersion; }
+
 auto AndroidAutoFacade::isWebRtcPreferred() const -> bool {
     return m_videoTransportMode.compare(QStringLiteral("webrtc"), Qt::CaseInsensitive) == 0;
-}
-
-auto AndroidAutoFacade::hasProjectionFallbackFrame() const -> bool {
-    return !m_projectionFrameUrl.isEmpty();
 }
 
 // Q_INVOKABLE methods
@@ -266,128 +253,79 @@ auto AndroidAutoFacade::onCoreVideoStateChanged(bool active) -> void {
         return;
     }
 
-    if (!active) {
-        if (!m_videoInactiveDebounceTimer.isActive()) {
-            m_videoInactiveDebounceTimer.start();
-        }
-        return;
-    }
-
-    if (m_videoInactiveDebounceTimer.isActive()) {
-        m_videoInactiveDebounceTimer.stop();
-    }
-
     if (m_isVideoActive != active) {
         m_isVideoActive = active;
         emit isVideoActiveChanged(m_isVideoActive);
     }
 }
 
-auto AndroidAutoFacade::onCoreVideoFrameReceived(const QString& frameUrl, int width, int height)
-    -> void {
-    if (!frameUrl.isEmpty() && m_videoInactiveDebounceTimer.isActive()) {
-        m_videoInactiveDebounceTimer.stop();
-    }
-
+auto AndroidAutoFacade::onCoreVideoFrameReceived(
+    const QString& frameUrl,
+    int width,
+    int height) -> void
+{
     if (!frameUrl.isEmpty() && !m_isVideoActive) {
-        if (m_videoInactiveDebounceTimer.isActive()) {
-            m_videoInactiveDebounceTimer.stop();
-        }
         m_isVideoActive = true;
         emit isVideoActiveChanged(m_isVideoActive);
     }
 
     if (frameUrl.isEmpty()) {
-        // Hold the last rendered frame while the session is still active to avoid
-        // blank-frame flashes on transient JPEG pipeline gaps.
-        if (m_connectionState == ConnectionState::Connected || m_isProjectionReady) {
+        // Keep last frame while AA session is active
+        if (m_connectionState == ConnectionState::Connected ||
+            m_isProjectionReady) {
             Logger::instance().debugContext(
                 "AndroidAutoFacade",
                 "Ignoring empty projection frame while session remains active");
             return;
         }
 
-        if (m_projectionFrameDispatchTimer.isActive()) {
-            m_projectionFrameDispatchTimer.stop();
+        m_projectionWidth = 0;
+        m_projectionHeight = 0;
+
+        if (m_imageProvider) {
+            m_imageProvider->clearFrame();
         }
-        m_hasPendingProjectionFrame = false;
-        dispatchProjectionFrame(frameUrl, width, height);
+
+        emit projectionFrameChanged(0, 0);
         return;
     }
 
-    const qint64 elapsedMs =
-        m_lastProjectionFrameDispatch.isValid() ? m_lastProjectionFrameDispatch.elapsed()
-                                                : m_projectionFrameIntervalMs;
-    if (elapsedMs >= m_projectionFrameIntervalMs) {
-        dispatchProjectionFrame(frameUrl, width, height);
-        m_lastProjectionFrameDispatch.restart();
-        return;
-    }
-
-    // Keep only the newest frame while waiting for the next dispatch window.
-    m_pendingProjectionFrameUrl = frameUrl;
-    m_pendingProjectionWidth = width;
-    m_pendingProjectionHeight = height;
-    m_hasPendingProjectionFrame = true;
-
-    if (!m_projectionFrameDispatchTimer.isActive()) {
-        const int remainingMs =
-            qMax(1, m_projectionFrameIntervalMs - static_cast<int>(elapsedMs));
-        m_projectionFrameDispatchTimer.start(remainingMs);
-    }
+    dispatchProjectionFrame(frameUrl, width, height);
 }
 
-auto AndroidAutoFacade::dispatchProjectionFrame(const QString& frameUrl, int width, int height)
-    -> void {
-    const bool frameUrlChanged = (m_projectionFrameUrl != frameUrl);
-    const bool frameSizeChanged = (m_projectionWidth != width || m_projectionHeight != height);
+void AndroidAutoFacade::setImageProvider(
+    AndroidAutoImageProvider *provider)
+{
+        m_imageProvider = provider;
+}
 
-    m_projectionFrameUrl = frameUrl;
+auto AndroidAutoFacade::dispatchProjectionFrame(
+    const QString& frameUrl,
+    int width,
+    int height) -> void
+{
+    const QByteArray jpeg =
+        QByteArray::fromBase64(frameUrl.section(',', 1).toLatin1());
+
+    QImage image;
+
+    if (!image.loadFromData(jpeg, "JPG")) {
+        Logger::instance().warningContext(
+            "AndroidAutoFacade",
+            "Failed to decode projection JPEG");
+        return;
+    }
+
+    if (m_imageProvider) {
+        m_imageProvider->setFrame(image);
+    }
+
     m_projectionWidth = width;
     m_projectionHeight = height;
+    m_projectionFrameVersion++;
 
-    if (frameUrlChanged) {
-        emit projectionFrameUrlChanged(m_projectionFrameUrl);
-    }
-    if (frameSizeChanged) {
-        emit projectionFrameChanged(m_projectionWidth, m_projectionHeight);
-    }
-}
-
-auto AndroidAutoFacade::onProjectionFrameDispatchTimeout() -> void {
-    if (!m_hasPendingProjectionFrame) {
-        return;
-    }
-
-    dispatchProjectionFrame(m_pendingProjectionFrameUrl,
-                            m_pendingProjectionWidth,
-                            m_pendingProjectionHeight);
-    m_hasPendingProjectionFrame = false;
-    m_lastProjectionFrameDispatch.restart();
-}
-
-auto AndroidAutoFacade::onVideoInactiveDebounceTimeout() -> void {
-    if (m_connectionState == ConnectionState::Connected || m_isProjectionReady) {
-        return;
-    }
-
-    if (!m_isVideoActive) {
-        return;
-    }
-
-    m_isVideoActive = false;
-    emit isVideoActiveChanged(m_isVideoActive);
-
-    if (m_projectionFrameDispatchTimer.isActive()) {
-        m_projectionFrameDispatchTimer.stop();
-    }
-    m_hasPendingProjectionFrame = false;
-
-    m_projectionFrameUrl.clear();
-    m_projectionWidth = 0;
-    m_projectionHeight = 0;
-    emit projectionFrameUrlChanged(m_projectionFrameUrl);
-    emit projectionFrameChanged(m_projectionWidth, m_projectionHeight);
+    emit projectionFrameVersionChanged(m_projectionFrameVersion);
+    emit projectionFrameChanged(width, height);
 }
 
 auto AndroidAutoFacade::onCoreAudioStateChanged(bool active) -> void {

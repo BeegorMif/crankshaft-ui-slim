@@ -18,7 +18,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 # Find Qt6 Test framework and additional components
-find_package(Qt6 REQUIRED COMPONENTS Test Core Multimedia)
+find_package(Qt6 REQUIRED COMPONENTS Quick Test Core Multimedia)
 
 set(SLIM_UI_TEST_COMMON_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/../Logger.cpp
@@ -26,6 +26,7 @@ set(SLIM_UI_TEST_COMMON_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/../PreferencesService.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../ServiceProvider.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../AndroidAutoFacade.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../AndroidAutoImageProvider.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../AndroidAutoWebRtcSession.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../ProjectionVideoRenderer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../QVideoSinkProjectionVideoRenderer.cpp
@@ -49,6 +50,7 @@ function(add_slim_ui_test test_name)
     target_link_libraries(${test_name} PRIVATE
         Qt6::Test
         Qt6::Core
+        Qt6::Quick
         Qt6::Multimedia
         Qt6::Sql
         Qt6::WebSockets

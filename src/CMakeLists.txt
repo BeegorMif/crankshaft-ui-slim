@@ -112,6 +112,8 @@ qt_add_executable(crankshaft-ui-slim
     ServiceProvider.cpp
     AndroidAutoFacade.h
     AndroidAutoFacade.cpp
+    AndroidAutoImageProvider.h
+    AndroidAutoImageProvider.cpp
     AndroidAutoWebRtcSession.h
     AndroidAutoWebRtcSession.cpp
     AndroidAutoWebRtcReceiver.h

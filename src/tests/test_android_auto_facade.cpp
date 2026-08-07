@@ -24,6 +24,13 @@
 #include "CoreClient.h"
 #include "ServiceProvider.h"
 
+#include "AndroidAutoImageProvider.h"
+
+class TestImageProvider : public AndroidAutoImageProvider
+{
+public:
+    using AndroidAutoImageProvider::AndroidAutoImageProvider;
+};
 class MockCoreClient : public CoreClient {
     Q_OBJECT
 
@@ -91,6 +98,19 @@ private slots:
         services.injectCoreClientForTesting(std::unique_ptr<CoreClient>(m_mockCoreClient));
     }
 
+    static QString testJpegFrame()
+    {
+        QImage image(10, 10, QImage::Format_RGB32);
+        image.fill(Qt::black);
+
+        QByteArray bytes;
+        QBuffer buffer(&bytes);
+        buffer.open(QIODevice::WriteOnly);
+        image.save(&buffer, "JPG");
+
+        return QStringLiteral("data:image/jpeg;base64,") +
+            bytes.toBase64();
+    }
     void cleanup() {
         ServiceProvider::instance().shutdown();
         m_mockCoreClient = nullptr;
@@ -143,76 +163,26 @@ private slots:
         QVERIFY(!facade.lastError().isEmpty());
     }
 
-    void testVideoInactiveDebounceCancelsOnQuickFrameRecovery() {
-        auto& services = ServiceProvider::instance();
-        AndroidAutoFacade facade(&services);
-
-        QVERIFY(m_mockCoreClient != nullptr);
-
-        QSignalSpy frameSpy(&facade, &AndroidAutoFacade::projectionFrameUrlChanged);
-
-        m_mockCoreClient->emitVideoFrame(QStringLiteral("data:image/jpeg;base64,first"), 800, 480);
-        QTRY_COMPARE(facade.projectionFrameUrl(), QStringLiteral("data:image/jpeg;base64,first"));
-        QCOMPARE(facade.projectionWidth(), 800);
-        QCOMPARE(facade.projectionHeight(), 480);
-        QVERIFY(facade.isVideoActive());
-
-        m_mockCoreClient->emitVideoState(false);
-        QTest::qWait(120);
-
-        m_mockCoreClient->emitVideoFrame(QStringLiteral("data:image/jpeg;base64,second"), 800, 480);
-        QTRY_COMPARE(facade.projectionFrameUrl(), QStringLiteral("data:image/jpeg;base64,second"));
-
-        QTest::qWait(320);
-        QVERIFY(facade.isVideoActive());
-        QCOMPARE(facade.projectionFrameUrl(), QStringLiteral("data:image/jpeg;base64,second"));
-
-        bool sawEmptyFrame = false;
-        for (const auto& args : frameSpy) {
-            const QString changedUrl = args.at(0).toString();
-            if (changedUrl.isEmpty()) {
-                sawEmptyFrame = true;
-                break;
-            }
-        }
-        QVERIFY(!sawEmptyFrame);
-    }
-
-    void testVideoInactiveDebounceClearsAfterTimeout() {
-        auto& services = ServiceProvider::instance();
-        AndroidAutoFacade facade(&services);
-
-        QVERIFY(m_mockCoreClient != nullptr);
-
-        m_mockCoreClient->emitVideoFrame(QStringLiteral("data:image/jpeg;base64,first"), 1024, 600);
-        QTRY_VERIFY(facade.isVideoActive());
-        QCOMPARE(facade.projectionFrameUrl(), QStringLiteral("data:image/jpeg;base64,first"));
-
-        m_mockCoreClient->emitVideoState(false);
-        QTest::qWait(450);
-
-        QVERIFY(!facade.isVideoActive());
-        QVERIFY(facade.projectionFrameUrl().isEmpty());
-        QCOMPARE(facade.projectionWidth(), 0);
-        QCOMPARE(facade.projectionHeight(), 0);
-    }
-
-    void testWebRtcPreferenceAndFallbackFrameExposure() {
+    void testWebRtcPreferenceAndProjectionFrameRecovery() {
         auto& services = ServiceProvider::instance();
         AndroidAutoFacade facade(&services);
 
         QVERIFY(m_mockCoreClient != nullptr);
         QVERIFY(!facade.isWebRtcPreferred());
-        QVERIFY(!facade.hasProjectionFallbackFrame());
 
         m_mockCoreClient->emitVideoTransportMode(QStringLiteral("webrtc"));
         QTRY_VERIFY(facade.isWebRtcPreferred());
 
-        m_mockCoreClient->emitVideoFrame(QStringLiteral("data:image/jpeg;base64,fallback"), 640, 360);
-        QTRY_VERIFY(facade.hasProjectionFallbackFrame());
+        const int versionBefore = facade.projectionFrameVersion();
 
-        m_mockCoreClient->emitVideoFrame(QString(), 0, 0);
-        QTRY_VERIFY(!facade.hasProjectionFallbackFrame());
+        m_mockCoreClient->emitVideoFrame(
+            testJpegFrame(),
+            640,
+            360);
+
+        QTRY_VERIFY(facade.projectionFrameVersion() > versionBefore);
+        QCOMPARE(facade.projectionWidth(), 640);
+        QCOMPARE(facade.projectionHeight(), 360);
     }
 };
 

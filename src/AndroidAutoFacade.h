@@ -25,8 +25,10 @@
 #include <QString>
 #include <QTimer>
 #include <QVariantMap>
+#include <QPointer>
 
 class ServiceProvider;
+class AndroidAutoImageProvider;
 
 class AndroidAutoFacade : public QObject {
     Q_OBJECT
@@ -66,9 +68,9 @@ class AndroidAutoFacade : public QObject {
     Q_PROPERTY(bool isProjectionReady READ isProjectionReady NOTIFY isProjectionReadyChanged)
 
     /**
-     * @brief Latest projection frame as a data URL for QML image rendering
+     * @brief Counter for projection frame updates, incremented on each new frame received
      */
-    Q_PROPERTY(QString projectionFrameUrl READ projectionFrameUrl NOTIFY projectionFrameUrlChanged)
+    Q_PROPERTY(int projectionFrameVersion READ projectionFrameVersion NOTIFY projectionFrameVersionChanged)
 
     /**
      * @brief Active core-reported video transport mode
@@ -90,11 +92,6 @@ class AndroidAutoFacade : public QObject {
      */
     Q_PROPERTY(bool isWebRtcPreferred READ isWebRtcPreferred NOTIFY videoTransportModeChanged)
 
-    /**
-     * @brief True when a JPEG fallback frame is currently available for rendering.
-     */
-    Q_PROPERTY(bool hasProjectionFallbackFrame READ hasProjectionFallbackFrame NOTIFY projectionFrameUrlChanged)
-
 public:
     enum ConnectionState {
         Disconnected = 0,
@@ -115,12 +112,11 @@ public:
     [[nodiscard]] auto isVideoActive() const -> bool;
     [[nodiscard]] auto isAudioActive() const -> bool;
     [[nodiscard]] auto isProjectionReady() const -> bool;
-    [[nodiscard]] auto projectionFrameUrl() const -> QString;
     [[nodiscard]] auto videoTransportMode() const -> QString;
     [[nodiscard]] auto projectionWidth() const -> int;
     [[nodiscard]] auto projectionHeight() const -> int;
     [[nodiscard]] auto isWebRtcPreferred() const -> bool;
-    [[nodiscard]] auto hasProjectionFallbackFrame() const -> bool;
+    [[nodiscard]] auto projectionFrameVersion() const -> int;
 
     /**
      * @brief Q_INVOKABLE methods for QML interface
@@ -174,6 +170,8 @@ public:
     // NOLINTEND(modernize-use-trailing-return-type)
 
     Q_INVOKABLE void setNightMode(bool nightMode);
+    void setImageProvider(AndroidAutoImageProvider *provider);
+
 signals:
     // Connection state changes
     void connectionStateChanged(int state);
@@ -184,8 +182,8 @@ signals:
     void isVideoActiveChanged(bool active);
     void isAudioActiveChanged(bool active);
     void isProjectionReadyChanged(bool ready);
-    void projectionFrameUrlChanged(const QString& frameUrl);
     void projectionFrameChanged(int width, int height);
+    void projectionFrameVersionChanged(int version);
     void videoTransportModeChanged(const QString& mode);
     void webRtcSignalingReceived(const QString& topic, const QVariantMap& payload);
 
@@ -211,8 +209,6 @@ private slots:
     void onCoreAudioStateChanged(bool active);
     void onCoreProjectionReadyChanged(bool ready);
     void onCoreConnectionError(const QString& error);
-    void onVideoInactiveDebounceTimeout();
-    void onProjectionFrameDispatchTimeout();
 
 private:
     auto setupEventBusConnections() -> void;
@@ -227,18 +223,11 @@ private:
     bool m_isVideoActive;
     bool m_isAudioActive;
     bool m_isProjectionReady;
-    QString m_projectionFrameUrl;
     QString m_videoTransportMode;
     int m_projectionWidth;
     int m_projectionHeight;
-    QTimer m_videoInactiveDebounceTimer;
-    QTimer m_projectionFrameDispatchTimer;
-    QElapsedTimer m_lastProjectionFrameDispatch;
-    QString m_pendingProjectionFrameUrl;
-    int m_pendingProjectionWidth = 0;
-    int m_pendingProjectionHeight = 0;
-    bool m_hasPendingProjectionFrame = false;
-    int m_projectionFrameIntervalMs = 33;
+    int m_projectionFrameVersion = 0;
+    QPointer<AndroidAutoImageProvider> m_imageProvider;
 };
 
 #endif  // ANDROIDAUTOFACADE_H

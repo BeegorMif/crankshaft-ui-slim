@@ -45,6 +45,7 @@
 #endif
 
 #include "AndroidAutoFacade.h"
+#include "AndroidAutoImageProvider.h"
 #include "AudioBridge.h"
 #include "BluetoothAdapter.h"
 #include "ConnectionStateMachine.h"
@@ -221,6 +222,8 @@ int runSlimUiApplication(int argc, char* argv[], const QString& version) {
             }
         });
 
+        auto *imageProvider = new AndroidAutoImageProvider();
+
         engine.rootContext()->setContextProperty("_serviceProvider", &services);
         engine.rootContext()->setContextProperty("_androidAutoFacade", &androidAutoFacade);
         engine.rootContext()->setContextProperty("_androidAutoWebRtcSession", &androidAutoWebRtcSession);
@@ -233,6 +236,8 @@ int runSlimUiApplication(int argc, char* argv[], const QString& version) {
         engine.rootContext()->setContextProperty("_preferencesFacade", &preferencesFacade);
         engine.rootContext()->setContextProperty("_errorHandler", &errorHandler);
         engine.rootContext()->setContextProperty("_webUiBridge", &webUiBridge);
+        engine.addImageProvider("androidauto", imageProvider);
+        androidAutoFacade.setImageProvider(imageProvider);
 
         const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
 
