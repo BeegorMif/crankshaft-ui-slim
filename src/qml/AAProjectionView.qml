@@ -118,7 +118,7 @@ Item {
     VideoOutput {
         id: projectionVideoOutput
         anchors.fill: parent
-        fillMode: VideoOutput.PreserveAspectFit
+        fillMode: VideoOutput.Stretch
         visible: webRtcActive
         videoSink: androidAutoWebRtcReceiver ? androidAutoWebRtcReceiver.videoSinkObject : null
 
