@@ -96,7 +96,7 @@ void WebUiBridge::handleMessage(const QJsonObject& obj) {
         return;
     }
 
-    if (type == QLatin1String("network") || (type == QLatinString("canbus"))) {
+    if (type == QLatin1String("network") || (type == QLatin1String("canbus"))) {
         return;
     }
     
