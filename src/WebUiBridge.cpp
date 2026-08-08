@@ -95,6 +95,10 @@ void WebUiBridge::handleMessage(const QJsonObject& obj) {
                 .arg(payload.value("source").toString()));
         return;
     }
+
+    if (type == QLatin1String("network") || (type == QLatinString("canbus"))) {
+        return;
+    }
     
     Logger::instance().debugContext("WebUiBridge",
         QString("Ignoring message type=%1 action=%2").arg(type, action));
