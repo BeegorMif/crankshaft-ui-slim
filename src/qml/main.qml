@@ -750,7 +750,7 @@ ApplicationWindow {
                         id: projectionImage
                         anchors.fill: parent
                         anchors.margins: root.immersiveProjectionMode ? 0 : theme.spacing.small
-                        fillMode: Image.PreserveAspectFit
+                        fillMode: Image.Stretch
                         smooth: true
                         cache: false
                         source: "image://androidauto/projection?" + _androidAutoFacade.projectionFrameVersion
