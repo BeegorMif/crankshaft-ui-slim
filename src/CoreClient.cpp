@@ -285,13 +285,13 @@ auto CoreClient::subscribeToTopics() -> void {
     webRtcSubscription["topic"] = "android-auto/webrtc/*";
     m_webSocket->sendTextMessage(QJsonDocument(webRtcSubscription).toJson(QJsonDocument::Compact));
 
-    QJsonObject btSubscription;
-    btSubscription["type"] = "subscribe";
-    btSubscription["topic"] = "bluetooth/#";
-    m_webSocket->sendTextMessage(QJsonDocument(btSubscription).toJson(QJsonDocument::Compact));
+    // QJsonObject btSubscription;
+    // btSubscription["type"] = "subscribe";
+    // btSubscription["topic"] = "bluetooth/#";
+    // m_webSocket->sendTextMessage(QJsonDocument(btSubscription).toJson(QJsonDocument::Compact));
 
     Logger::instance().infoContext("CoreClient",
-                                   "Subscribed to android-auto/status/*, android-auto/media/*, android-auto/webrtc/*, bluetooth/#");
+                                   "Subscribed to android-auto/status/*, android-auto/media/video-frame, android-auto/media/metadata, android-auto/webrtc/*");
 }
 
 auto CoreClient::sendClientHello() -> void {
