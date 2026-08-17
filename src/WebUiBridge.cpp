@@ -84,6 +84,19 @@ void WebUiBridge::handleMessage(const QJsonObject& obj) {
         return;
     }
 
+    if (type == QLatin1String("browser") && action == QLatin1String("powerDialogActive")) {
+        const QJsonObject payload = obj.value("payload").toObject();
+        const bool active = payload.value("enabled").toBool();
+
+        if (active != m_powerDialogActive) {
+            m_powerDialogActive = active;
+            emit powerDialogActiveChanged(m_powerDialogActive);
+            Logger::instance().infoContext("WebUiBridge",
+                QString("powerDialogActive -> %1").arg(m_powerDialogActive));
+        }
+        return;
+    }
+
     if (type == QLatin1String("system") && action == QLatin1String("darkMode")) {
         const QJsonObject payload = obj.value("payload").toObject();
         const bool nightMode = payload.value("value").toBool();

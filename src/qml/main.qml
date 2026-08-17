@@ -43,6 +43,7 @@ ApplicationWindow {
         navigationController.currentViewState === navigationController.viewStateAAProjection &&
         !navigationController.settingsPanelVisible
     property bool aaOverlayVisible: true
+    property bool powerDialogActive: false
     property int menuWidth: 50
     // Theme Manager - centralized theme control
     ThemeManager {
@@ -92,7 +93,10 @@ ApplicationWindow {
             root.updateFullscreenModeForCurrentState()
         }
     }
-    
+    Shortcut {
+        sequence: "Ctrl+Shift+P"
+        onActivated: root.powerDialogActive = !root.powerDialogActive
+    }
     // Watch for errors from ErrorHandler
     Connections {
         target: _errorHandler
@@ -273,8 +277,8 @@ ApplicationWindow {
     }
     Item {
         id: mainContent
-        visible: root.aaOverlayVisible
-        enabled: root.aaOverlayVisible
+        visible: root.aaOverlayVisible && !root.powerDialogActive
+        enabled: root.aaOverlayVisible && !root.powerDialogActive
         anchors.centerIn: parent
         width: (root.displayRotation === 90 || root.displayRotation === 270) ? parent.height : parent.width
         height: (root.displayRotation === 90 || root.displayRotation === 270) ? parent.width : parent.height
@@ -533,6 +537,10 @@ ApplicationWindow {
                         target: _webUiBridge
                         function onAaOverlayVisibleChanged(visible) {
                             root.aaOverlayVisible = visible
+                            root.updateFullscreenModeForCurrentState()
+                        }
+                        function onPowerDialogActiveChanged(active) {
+                            root.powerDialogActive = active
                             root.updateFullscreenModeForCurrentState()
                         }
                         function onNightModeChanged(nightMode) {

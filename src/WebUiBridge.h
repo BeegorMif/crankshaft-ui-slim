@@ -14,12 +14,14 @@ public:
     explicit WebUiBridge(QObject* parent = nullptr);
 
     [[nodiscard]] auto aaOverlayVisible() const -> bool { return m_aaOverlayVisible; }
+    [[nodiscard]] auto powerDialogActive() const -> bool { return m_powerDialogActive; }
     [[nodiscard]] auto connected() const -> bool { return m_connected; }
 
     Q_INVOKABLE void connectToServer(const QString& url = QStringLiteral("ws://localhost:3001"));
 
 signals:
     void aaOverlayVisibleChanged(bool visible);
+    void powerDialogActiveChanged(bool visible);
     void connectedChanged(bool connected);
     void nightModeChanged(bool nightMode);
 
@@ -37,6 +39,7 @@ private:
     QTimer* m_reconnectTimer;
     QString m_url;
     bool m_aaOverlayVisible = true;
+    bool m_powerDialogActive = false;
     bool m_connected = false;
 
     static constexpr int RECONNECT_INTERVAL_MS = 3000;
