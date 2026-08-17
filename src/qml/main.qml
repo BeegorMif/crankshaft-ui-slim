@@ -755,9 +755,16 @@ ApplicationWindow {
                     }
 
                     Image {
-                        id: projectionImage
-                        anchors.fill: parent
-                        anchors.margins: root.immersiveProjectionMode ? 0 : theme.spacing.small
+                            id: projectionImage
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+
+                        // Shift AA 50px left and make it 50px wider.
+                        anchors.leftMargin: -15
+                        anchors.rightMargin: 0
+
                         fillMode: Image.Stretch
                         smooth: true
                         cache: false
