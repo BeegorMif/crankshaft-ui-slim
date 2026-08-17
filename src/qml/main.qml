@@ -28,8 +28,8 @@ import "components"
 ApplicationWindow {
     id: root
     visible: true
-    width: 800
-    height: 480
+    width: 1280
+    height: 720
     title: qsTr("Crankshaft Slim UI - AndroidAuto")
     property string lastShownConnectionError: ""
     property int displayRotation: 0
