@@ -18,7 +18,7 @@
 [Unit]
 Description=Crankshaft Slim AndroidAuto UI Service
 Documentation=https://github.com/opencardev/crankshaft-ui-slim
-Require=dash-server.service
+Requires=dash-server.service
 
 [Service]
 Type=notify
