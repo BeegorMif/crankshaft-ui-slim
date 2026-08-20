@@ -431,6 +431,7 @@ ApplicationWindow {
                 Rectangle {
                     id: projectionSurface
                     anchors.fill: parent
+                    clip: true
                     color: theme.colors.background
                     readonly property bool webRtcSelected: _androidAutoFacade && _androidAutoFacade.videoTransportMode && _androidAutoFacade.videoTransportMode.toLowerCase() === "webrtc"
                     readonly property bool webRtcHealthy: _androidAutoWebRtcReceiver && _androidAutoWebRtcReceiver.active && _androidAutoWebRtcReceiver.healthy
@@ -595,10 +596,10 @@ ApplicationWindow {
 
                         var frameLeft = webRtcActive && videoRect.width > 0
                             ? videoRect.x
-                            : (projectionImage.width - frameWidth) / 2
+                            : (projectionImage.width - frameWidth) / 2 + projectionImage.x
                         var frameTop = webRtcActive && videoRect.height > 0
                             ? videoRect.y
-                            : (projectionImage.height - frameHeight) / 2
+                            : (projectionImage.height - frameHeight) / 2 + projectionImage.y
 
                         var localX = Math.max(0, Math.min(frameWidth - 1, rawX - frameLeft))
                         var localY = Math.max(0, Math.min(frameHeight - 1, rawY - frameTop))
@@ -761,9 +762,8 @@ ApplicationWindow {
                         anchors.left: parent.left
                         anchors.right: parent.right
 
-                        // Shift AA 50px left and make it 50px wider.
                         anchors.leftMargin: -15
-                        anchors.rightMargin: 0
+                        anchors.rightMargin: -15
 
                         fillMode: Image.Stretch
                         smooth: true

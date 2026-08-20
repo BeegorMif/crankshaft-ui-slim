@@ -104,10 +104,10 @@ Item {
 
         var frameLeft = webRtcActive && projectionVideoOutput.contentRect.width > 0
             ? projectionVideoOutput.contentRect.x
-            : (projectionImage.width - frameWidth) / 2
+            : (projectionImage.width - frameWidth) / 2 + projectionImage.x
         var frameTop = webRtcActive && projectionVideoOutput.contentRect.height > 0
             ? projectionVideoOutput.contentRect.y
-            : (projectionImage.height - frameHeight) / 2
+            : (projectionImage.height - frameHeight) / 2 + projectionImage.y
 
         var localX = Math.max(0, Math.min(frameWidth - 1, rawX - frameLeft))
         var localY = Math.max(0, Math.min(frameHeight - 1, rawY - frameTop))

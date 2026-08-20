@@ -68,10 +68,10 @@ QSize TouchEventForwarder::resolvePublishedDisplayResolution(const QSize& render
                                                               const QSize& screenSize,
                                                               qreal devicePixelRatio,
                                                               bool isFullscreen) {
-    if (isFullscreen && screenSize.isValid() && screenSize.width() > 0 && screenSize.height() > 0) {
-         const qreal ratio = qMax<qreal>(1.0, devicePixelRatio);
-         return QSize(qRound(screenSize.width() * ratio), qRound(screenSize.height() * ratio));
-     }
+    // if (isFullscreen && screenSize.isValid() && screenSize.width() > 0 && screenSize.height() > 0) {
+    //      const qreal ratio = qMax<qreal>(1.0, devicePixelRatio);
+    //      return QSize(qRound(screenSize.width() * ratio), qRound(screenSize.height() * ratio));
+    //  }
      return renderedSize;
  }
 
