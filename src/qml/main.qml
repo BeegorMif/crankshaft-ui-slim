@@ -772,7 +772,7 @@ function mapToProjectionCoordinates(rawX, rawY) {
                         anchors.right: parent.right
 
                         anchors.leftMargin: -15
-                        anchors.rightMargin: -15
+                        anchors.rightMargin: -13
 
                         fillMode: Image.Stretch
                         smooth: true
