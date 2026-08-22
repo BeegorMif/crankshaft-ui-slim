@@ -855,6 +855,7 @@ function mapToProjectionCoordinates(rawX, rawY) {
 
                         onPressed: (mouse) => {
                             isPressed = true
+                            console.log("RAW mouse:", mouse.x, mouse.y, "window size:", width, height)
                             if (_touchForwarder) {
                                 var mapped = projectionSurface.mapToProjectionCoordinates(mouse.x, mouse.y)
                                 _touchForwarder.forwardMouseEvent("press", mapped.x, mapped.y)
