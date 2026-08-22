@@ -582,6 +582,8 @@ ApplicationWindow {
                     }
 
 function mapToProjectionCoordinates(rawX, rawY) {
+        print("MAPFUNC CALLED", rawX, rawY)
+
     var videoRect = videoContentRect()
     var frameWidth = webRtcActive && videoRect.width > 0
         ? videoRect.width

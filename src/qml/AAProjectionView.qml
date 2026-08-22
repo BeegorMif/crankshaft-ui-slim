@@ -91,6 +91,8 @@ Item {
     // produce visible HDMI flicker.
 
     function mapToProjectionCoordinates(rawX, rawY) {
+            print("MAPFUNC CALLED", rawX, rawY)
+
         var frameWidth = webRtcActive && projectionVideoOutput.contentRect.width > 0
             ? projectionVideoOutput.contentRect.width
             : (projectionImage.paintedWidth > 0 ? projectionImage.paintedWidth : projectionImage.width)
@@ -118,7 +120,7 @@ Item {
                 "image width/height:", projectionImage.width, projectionImage.height,
                 "frameLeft/Top:", frameLeft, frameTop,
                 "raw:", rawX, rawY, "-> local:", localX, localY)
-                
+
         return { x: localX, y: localY }
     }
     
