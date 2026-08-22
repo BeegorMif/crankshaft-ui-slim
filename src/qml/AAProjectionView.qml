@@ -91,6 +91,8 @@ Item {
     // produce visible HDMI flicker.
 
     function mapToProjectionCoordinates(rawX, rawY) {
+            print("MAPFUNC CALLED", rawX, rawY)
+
         var frameWidth = webRtcActive && projectionVideoOutput.contentRect.width > 0
             ? projectionVideoOutput.contentRect.width
             : (projectionImage.paintedWidth > 0 ? projectionImage.paintedWidth : projectionImage.width)
@@ -111,6 +113,13 @@ Item {
 
         var localX = Math.max(0, Math.min(frameWidth - 1, rawX - frameLeft))
         var localY = Math.max(0, Math.min(frameHeight - 1, rawY - frameTop))
+
+    console.log("MAP DEBUG webRtcActive:", webRtcActive,
+                "videoRect:", videoRect.x, videoRect.y, videoRect.width, videoRect.height,
+                "paintedWidth/Height:", projectionImage.paintedWidth, projectionImage.paintedHeight,
+                "image width/height:", projectionImage.width, projectionImage.height,
+                "frameLeft/Top:", frameLeft, frameTop,
+                "raw:", rawX, rawY, "-> local:", localX, localY)
 
         return { x: localX, y: localY }
     }
@@ -169,8 +178,11 @@ Item {
         maximumTouchPoints: 10
         
         onPressed: (touchPoints) => {
-            forwardTouchEvent("press", touchPoints)
-        }
+    for (var i = 0; i < touchPoints.length; i++) {
+        console.log("RAW touch:", touchPoints[i].x, touchPoints[i].y, "window size:", width, height)
+    }
+    forwardTouchEvent("press", touchPoints)
+}
         
         onUpdated: (touchPoints) => {
             forwardTouchEvent("move", touchPoints)
