@@ -169,8 +169,11 @@ Item {
         maximumTouchPoints: 10
         
         onPressed: (touchPoints) => {
-            forwardTouchEvent("press", touchPoints)
-        }
+    for (var i = 0; i < touchPoints.length; i++) {
+        console.log("RAW touch:", touchPoints[i].x, touchPoints[i].y, "window size:", width, height)
+    }
+    forwardTouchEvent("press", touchPoints)
+}
         
         onUpdated: (touchPoints) => {
             forwardTouchEvent("move", touchPoints)

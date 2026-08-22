@@ -581,31 +581,38 @@ ApplicationWindow {
                         _touchForwarder.androidAutoSize = Qt.size(aaWidth, aaHeight)
                     }
 
-                    function mapToProjectionCoordinates(rawX, rawY) {
-                        var videoRect = videoContentRect()
-                        var frameWidth = webRtcActive && videoRect.width > 0
-                            ? videoRect.width
-                            : (projectionImage.paintedWidth > 0 ? projectionImage.paintedWidth : projectionImage.width)
-                        var frameHeight = webRtcActive && videoRect.height > 0
-                            ? videoRect.height
-                            : (projectionImage.paintedHeight > 0 ? projectionImage.paintedHeight : projectionImage.height)
+function mapToProjectionCoordinates(rawX, rawY) {
+    var videoRect = videoContentRect()
+    var frameWidth = webRtcActive && videoRect.width > 0
+        ? videoRect.width
+        : (projectionImage.paintedWidth > 0 ? projectionImage.paintedWidth : projectionImage.width)
+    var frameHeight = webRtcActive && videoRect.height > 0
+        ? videoRect.height
+        : (projectionImage.paintedHeight > 0 ? projectionImage.paintedHeight : projectionImage.height)
 
-                        if (frameWidth <= 0 || frameHeight <= 0) {
-                            return { x: 0, y: 0 }
-                        }
+    if (frameWidth <= 0 || frameHeight <= 0) {
+        return { x: 0, y: 0 }
+    }
 
-                        var frameLeft = webRtcActive && videoRect.width > 0
-                            ? videoRect.x
-                            : (projectionImage.width - frameWidth) / 2 + projectionImage.x
-                        var frameTop = webRtcActive && videoRect.height > 0
-                            ? videoRect.y
-                            : (projectionImage.height - frameHeight) / 2 + projectionImage.y
+    var frameLeft = webRtcActive && videoRect.width > 0
+        ? videoRect.x
+        : (projectionImage.width - frameWidth) / 2 + projectionImage.x
+    var frameTop = webRtcActive && videoRect.height > 0
+        ? videoRect.y
+        : (projectionImage.height - frameHeight) / 2 + projectionImage.y
 
-                        var localX = Math.max(0, Math.min(frameWidth - 1, rawX - frameLeft))
-                        var localY = Math.max(0, Math.min(frameHeight - 1, rawY - frameTop))
+    var localX = Math.max(0, Math.min(frameWidth - 1, rawX - frameLeft))
+    var localY = Math.max(0, Math.min(frameHeight - 1, rawY - frameTop))
 
-                        return { x: localX, y: localY }
-                    }
+    console.log("MAP DEBUG webRtcActive:", webRtcActive,
+                "videoRect:", videoRect.x, videoRect.y, videoRect.width, videoRect.height,
+                "paintedWidth/Height:", projectionImage.paintedWidth, projectionImage.paintedHeight,
+                "image width/height:", projectionImage.width, projectionImage.height,
+                "frameLeft/Top:", frameLeft, frameTop,
+                "raw:", rawX, rawY, "-> local:", localX, localY)
+
+    return { x: localX, y: localY }
+}
 
                     focus: visible
                     onVisibleChanged: {
@@ -807,7 +814,12 @@ ApplicationWindow {
                         minimumTouchPoints: 1
                         maximumTouchPoints: 10
 
-                        onPressed: (touchPoints) => forwardTouchEvent("press", touchPoints)
+                        onPressed: (touchPoints) => {
+    for (var i = 0; i < touchPoints.length; i++) {
+        console.log("RAW touch:", touchPoints[i].x, touchPoints[i].y, "window size:", width, height)
+    }
+    forwardTouchEvent("press", touchPoints)
+}
                         onUpdated: (touchPoints) => forwardTouchEvent("move", touchPoints)
                         onReleased: (touchPoints) => forwardTouchEvent("release", touchPoints)
                         onCanceled: (touchPoints) => forwardTouchEvent("cancel", touchPoints)
