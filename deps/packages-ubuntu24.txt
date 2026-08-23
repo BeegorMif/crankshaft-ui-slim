@@ -18,6 +18,9 @@ qt6-tools-dev-tools
 qt6-l10n-tools
 qt6-webengine-dev
 qml6-module-qtwebengine
+qml6-module-qtqml-workerscript
+qml6-module-qtquick-templates
+qml-module-qtquick-controls2
 libqt6sql6-sqlite
 libgstreamer1.0-dev
 libgstreamer-plugins-base1.0-dev
