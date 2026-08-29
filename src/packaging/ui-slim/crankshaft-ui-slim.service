@@ -17,13 +17,14 @@
 [Unit]
 Description=Crankshaft Slim AndroidAuto UI Service
 Documentation=https://github.com/opencardev/crankshaft-ui-slim
-Requires=dash-server.service
-After=graphical-session.target dash-server.service
+
+Requires=greetd.service
+After=greetd.service dash-server.service
 Wants=crankshaft-core.service
+Requires=dash-server.service
 
 [Service]
-Type=notify
-NotifyAccess=main
+Type=simple
 User=crankshaft
 Group=crankshaft
 ExecStart=/usr/local/bin/crankshaft-ui-slim
@@ -33,20 +34,19 @@ StandardOutput=journal
 StandardError=journal
 
 # User/session paths
-Environment="HOME=/var/lib/crankshaft/slim-ui"
+Environment="HOME=/var/lib/crankshaft"
 Environment="XDG_CONFIG_HOME=/var/lib/crankshaft/slim-ui/.config"
 Environment="XDG_DATA_HOME=/var/lib/crankshaft/slim-ui/.local/share"
 Environment="XDG_STATE_HOME=/var/lib/crankshaft/slim-ui/.local/state"
 Environment="XDG_CACHE_HOME=/var/cache/crankshaft"
 
-# Wayland
-Environment="XDG_RUNTIME_DIR=/run/user/1001"
+# Wayland session created by greetd/labwc
+Environment="XDG_RUNTIME_DIR=/run/user/110"
 Environment="WAYLAND_DISPLAY=wayland-0"
 Environment="QT_QPA_PLATFORM=wayland"
 Environment="QSG_RHI_BACKEND=opengl"
 
-# Do NOT use the old Pi Chromium flags here.
-# QtWebEngine can use the GPU normally on the OptiPlex.
+# QtWebEngine
 Environment="QTWEBENGINE_CHROMIUM_FLAGS=--ozone-platform=wayland"
 
 # Application
@@ -71,13 +71,6 @@ ReadWritePaths=/var/lib/crankshaft /var/log/crankshaft /var/cache/crankshaft
 ProtectKernelTunables=true
 ProtectKernelModules=true
 ProtectControlGroups=true
-
-# Resource limits
-MemoryMax=200M
-CPUQuota=80%
-
-# Watchdog enabled: ui-slim sends READY=1 and periodic WATCHDOG=1 heartbeats.
-WatchdogSec=30
 
 [Install]
 WantedBy=graphical.target
