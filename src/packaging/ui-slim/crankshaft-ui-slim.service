@@ -62,13 +62,5 @@ Environment="QML_FORCE_DISK_CACHE=1"
 # Audio backend preference
 Environment="QT_MULTIMEDIA_PREFERRED_PLUGINS=pulseaudio,alsa"
 
-# Security hardening
-NoNewPrivileges=true
-PrivateTmp=true
-ReadWritePaths=/var/lib/crankshaft /var/log/crankshaft /var/cache/crankshaft
-ProtectKernelTunables=true
-ProtectKernelModules=true
-ProtectControlGroups=true
-
 [Install]
 WantedBy=graphical.target
