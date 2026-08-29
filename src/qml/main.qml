@@ -239,8 +239,7 @@ ApplicationWindow {
 
         if (!isProjectionOnlyView) {
             cancelDelayedFullscreen()
-            root.visibility = Window.Windowed
-            return
+                return
         }
 
         // Keep fullscreen if already active, but restart the delayed transition if not.
