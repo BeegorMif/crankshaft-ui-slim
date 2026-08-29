@@ -47,7 +47,7 @@ Environment="QT_QPA_PLATFORM=wayland"
 Environment="QSG_RHI_BACKEND=opengl"
 
 # QtWebEngine
-Environment="QTWEBENGINE_CHROMIUM_FLAGS=--ozone-platform=wayland"
+#Environment="QTWEBENGINE_CHROMIUM_FLAGS=--ozone-platform=wayland"
 
 # Application
 Environment="SLIM_UI_DEBUG=0"
@@ -65,8 +65,6 @@ Environment="QT_MULTIMEDIA_PREFERRED_PLUGINS=pulseaudio,alsa"
 # Security hardening
 NoNewPrivileges=true
 PrivateTmp=true
-ProtectSystem=strict
-ProtectHome=true
 ReadWritePaths=/var/lib/crankshaft /var/log/crankshaft /var/cache/crankshaft
 ProtectKernelTunables=true
 ProtectKernelModules=true
