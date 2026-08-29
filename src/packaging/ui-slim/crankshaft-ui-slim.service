@@ -14,11 +14,12 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with Crankshaft. If not, see <http://www.gnu.org/licenses/>.
-
 [Unit]
 Description=Crankshaft Slim AndroidAuto UI Service
 Documentation=https://github.com/opencardev/crankshaft-ui-slim
 Requires=dash-server.service
+After=graphical-session.target dash-server.service
+Wants=crankshaft-core.service
 
 [Service]
 Type=notify
@@ -31,22 +32,24 @@ RestartSec=5
 StandardOutput=journal
 StandardError=journal
 
-# Service user has no login home; provide explicit writable runtime/data paths.
+# User/session paths
 Environment="HOME=/var/lib/crankshaft/slim-ui"
 Environment="XDG_CONFIG_HOME=/var/lib/crankshaft/slim-ui/.config"
 Environment="XDG_DATA_HOME=/var/lib/crankshaft/slim-ui/.local/share"
 Environment="XDG_STATE_HOME=/var/lib/crankshaft/slim-ui/.local/state"
 Environment="XDG_CACHE_HOME=/var/cache/crankshaft"
 
-# Environment for Qt platform (EGLFS for physical display, VNC for remote)
-Environment="QTWEBENGINE_CHROMIUM_FLAGS=--disable-vulkan --disable-gpu --disable-gpu-compositing --disable-gpu-vsync"
-Environment="QT_QPA_PLATFORM=eglfs"
-Environment="QT_QPA_EGLFS_INTEGRATION=eglfs_kms"
-Environment="QT_QPA_EGLFS_ALWAYS_SET_MODE=1"
-Environment="QT_QPA_EGLFS_HIDECURSOR=1"
+# Wayland
+Environment="XDG_RUNTIME_DIR=/run/user/1001"
+Environment="WAYLAND_DISPLAY=wayland-0"
+Environment="QT_QPA_PLATFORM=wayland"
 Environment="QSG_RHI_BACKEND=opengl"
 
-# Debug output (set to 1 for verbose logging)
+# Do NOT use the old Pi Chromium flags here.
+# QtWebEngine can use the GPU normally on the OptiPlex.
+Environment="QTWEBENGINE_CHROMIUM_FLAGS=--ozone-platform=wayland"
+
+# Application
 Environment="SLIM_UI_DEBUG=0"
 Environment="SLIM_UI_LOG_LEVEL=info"
 Environment="SLIM_UI_LOG_FILE=/var/log/crankshaft/ui_slim.log"
@@ -77,5 +80,4 @@ CPUQuota=80%
 WatchdogSec=30
 
 [Install]
-WantedBy=multi-user.target
 WantedBy=graphical.target
