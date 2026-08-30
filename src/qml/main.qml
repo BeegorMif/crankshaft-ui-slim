@@ -44,7 +44,7 @@ ApplicationWindow {
         !navigationController.settingsPanelVisible
     property bool aaOverlayVisible: true
     property bool powerDialogActive: false
-    property int menuHeight: 60
+    property int menuHeight: 80
     // Theme Manager - centralized theme control
     ThemeManager {
         id: theme
