@@ -779,7 +779,7 @@ function mapToProjectionCoordinates(rawX, rawY) {
                         anchors.leftMargin: -15
                         anchors.rightMargin: -13
 
-                        fillMode: Image.Stretch
+                        fillMode: Image.PreserveAspectFit
                         smooth: true
                         cache: false
                         source: "image://androidauto/projection?" + _androidAutoFacade.projectionFrameVersion
