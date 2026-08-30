@@ -569,12 +569,6 @@ ApplicationWindow {
                         var mappedHeight = webRtcActive && videoRect.height > 0
                             ? videoRect.height
                             : (projectionImage.paintedHeight > 0 ? projectionImage.paintedHeight : projectionImage.height)
-                            console.log("[touchDebug] publishing displaySize:", mappedWidth, "x", mappedHeight,
-                                    "webRtcActive:", webRtcActive,
-                                    "videoRect:", videoRect.width, videoRect.height,
-                                    "paintedWidth/Height:", projectionImage.paintedWidth, projectionImage.paintedHeight,
-                                    "element width/height:", projectionImage.width, projectionImage.height)
-
                         _touchForwarder.displaySize = Qt.size(mappedWidth, mappedHeight)
 
                         var aaWidth = _androidAutoFacade && _androidAutoFacade.projectionWidth > 0
@@ -610,13 +604,6 @@ function mapToProjectionCoordinates(rawX, rawY) {
 
     var localX = Math.max(0, Math.min(frameWidth - 1, rawX - frameLeft))
     var localY = Math.max(0, Math.min(frameHeight - 1, rawY - frameTop))
-
-    console.log("MAP DEBUG webRtcActive:", webRtcActive,
-                "videoRect:", videoRect.x, videoRect.y, videoRect.width, videoRect.height,
-                "paintedWidth/Height:", projectionImage.paintedWidth, projectionImage.paintedHeight,
-                "image width/height:", projectionImage.width, projectionImage.height,
-                "frameLeft/Top:", frameLeft, frameTop,
-                "raw:", rawX, rawY, "-> local:", localX, localY)
 
     return { x: localX, y: localY }
 }
@@ -816,11 +803,8 @@ function mapToProjectionCoordinates(rawX, rawY) {
                         maximumTouchPoints: 10
 
                         onPressed: (touchPoints) => {
-    for (var i = 0; i < touchPoints.length; i++) {
-        console.log("RAW touch:", touchPoints[i].x, touchPoints[i].y, "window size:", width, height)
-    }
-    forwardTouchEvent("press", touchPoints)
-}
+                            forwardTouchEvent("press", touchPoints)
+                        }
                         onUpdated: (touchPoints) => forwardTouchEvent("move", touchPoints)
                         onReleased: (touchPoints) => forwardTouchEvent("release", touchPoints)
                         onCanceled: (touchPoints) => forwardTouchEvent("cancel", touchPoints)
@@ -856,7 +840,6 @@ function mapToProjectionCoordinates(rawX, rawY) {
 
                         onPressed: (mouse) => {
                             isPressed = true
-                            console.log("RAW mouse:", mouse.x, mouse.y, "window size:", width, height)
                             if (_touchForwarder) {
                                 var mapped = projectionSurface.mapToProjectionCoordinates(mouse.x, mouse.y)
                                 _touchForwarder.forwardMouseEvent("press", mapped.x, mapped.y)
