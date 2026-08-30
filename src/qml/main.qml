@@ -44,7 +44,7 @@ ApplicationWindow {
         !navigationController.settingsPanelVisible
     property bool aaOverlayVisible: true
     property bool powerDialogActive: false
-    property int menuWidth: 50
+    property int menuWidth: 60
     // Theme Manager - centralized theme control
     ThemeManager {
         id: theme
@@ -295,7 +295,7 @@ ApplicationWindow {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.rightMargin: root.menuWidth
+            anchors.bottomMargin: root.menuWidth
             color: theme.colors.background
         }
         
@@ -344,7 +344,7 @@ ApplicationWindow {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.rightMargin: root.menuWidth
+            anchors.bottomMargin: root.menuWidth
             visible: navigationController.currentViewState === navigationController.viewStateConnectionStatus
             themeManager: theme
             androidAutoFacade: _androidAutoFacade
@@ -357,7 +357,7 @@ ApplicationWindow {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.rightMargin: root.menuWidth
+            anchors.bottomMargin: root.menuWidth
             color: theme.colors.background
             visible: navigationController.currentViewState === navigationController.viewStateAAProjection ||
                      navigationController.currentViewState === navigationController.viewStateSettings
@@ -770,16 +770,10 @@ function mapToProjectionCoordinates(rawX, rawY) {
                     }
 
                     Image {
-                            id: projectionImage
-                        anchors.top: parent.top
-                        anchors.bottom: parent.bottom
-                        anchors.left: parent.left
-                        anchors.right: parent.right
+                        id: projectionImage
+                        anchors.fill: parent
 
-                        anchors.leftMargin: -15
-                        anchors.rightMargin: -13
-
-                        fillMode: Image.Stretch
+                        fillMode: Image.PreserveAspectFit
                         smooth: true
                         cache: false
                         source: "image://androidauto/projection?" + _androidAutoFacade.projectionFrameVersion
