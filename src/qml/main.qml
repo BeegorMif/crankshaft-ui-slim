@@ -569,6 +569,12 @@ ApplicationWindow {
                         var mappedHeight = webRtcActive && videoRect.height > 0
                             ? videoRect.height
                             : (projectionImage.paintedHeight > 0 ? projectionImage.paintedHeight : projectionImage.height)
+                            console.log("[touchDebug] publishing displaySize:", mappedWidth, "x", mappedHeight,
+                                    "webRtcActive:", webRtcActive,
+                                    "videoRect:", videoRect.width, videoRect.height,
+                                    "paintedWidth/Height:", projectionImage.paintedWidth, projectionImage.paintedHeight,
+                                    "element width/height:", projectionImage.width, projectionImage.height)
+
                         _touchForwarder.displaySize = Qt.size(mappedWidth, mappedHeight)
 
                         var aaWidth = _androidAutoFacade && _androidAutoFacade.projectionWidth > 0
