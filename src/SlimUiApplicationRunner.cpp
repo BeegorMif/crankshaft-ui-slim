@@ -126,6 +126,9 @@ int runSlimUiApplication(int argc, char* argv[], const QString& version) {
     QQuickStyle::setStyle("Material");
 
     QGuiApplication app(argc, argv);
+    QPixmap transparentPixmap(1, 1);
+    transparentPixmap.fill(Qt::transparent);
+    app.setOverrideCursor(QCursor(transparentPixmap, 0, 0));
     app.setApplicationName("Crankshaft Slim UI");
     app.setApplicationVersion(version);
     app.setOrganizationName("OpenCarDev");
