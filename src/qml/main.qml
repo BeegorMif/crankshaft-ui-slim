@@ -29,7 +29,7 @@ ApplicationWindow {
     id: root
     visible: true
     width: 1280
-    height: 720
+    height: 800
     title: qsTr("Crankshaft Slim UI - AndroidAuto")
     property string lastShownConnectionError: ""
     property int displayRotation: 0
