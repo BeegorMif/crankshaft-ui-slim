@@ -18,13 +18,14 @@
 Description=Crankshaft Slim AndroidAuto UI Service
 Documentation=https://github.com/opencardev/crankshaft-ui-slim
 
-Requires=greetd.service
-After=greetd.service dash-server.service
+Requires=dashboard-xorg.service
+After=dashboard-xorg.service dash-server.service
 Wants=crankshaft-core.service
 Requires=dash-server.service
 
 [Service]
-Type=simple
+Type=notify
+NotifyAccess=main
 User=crankshaft
 Group=crankshaft
 ExecStart=/usr/local/bin/crankshaft-ui-slim
@@ -40,11 +41,8 @@ Environment="XDG_DATA_HOME=/var/lib/crankshaft/slim-ui/.local/share"
 Environment="XDG_STATE_HOME=/var/lib/crankshaft/slim-ui/.local/state"
 Environment="XDG_CACHE_HOME=/var/cache/crankshaft"
 
-# Wayland session created by greetd/labwc
-Environment="XDG_RUNTIME_DIR=/run/user/110"
-Environment="WAYLAND_DISPLAY=wayland-0"
-Environment="QT_QPA_PLATFORM=wayland"
-Environment="QSG_RHI_BACKEND=opengl"
+Environment="DISPLAY=:0"
+Environment="QT_QPA_PLATFORM=xcb"
 
 # QtWebEngine
 #Environment="QTWEBENGINE_CHROMIUM_FLAGS=--ozone-platform=wayland"
