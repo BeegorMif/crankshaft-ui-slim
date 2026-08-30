@@ -44,7 +44,7 @@ ApplicationWindow {
         !navigationController.settingsPanelVisible
     property bool aaOverlayVisible: true
     property bool powerDialogActive: false
-    property int menuWidth: 50
+    property int menuHeight: 80
     // Theme Manager - centralized theme control
     ThemeManager {
         id: theme
@@ -295,7 +295,7 @@ ApplicationWindow {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.rightMargin: root.menuWidth
+            anchors.bottomMargin: root.menuHeight
             color: theme.colors.background
         }
         
@@ -344,7 +344,7 @@ ApplicationWindow {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.rightMargin: root.menuWidth
+            anchors.bottomMargin: root.menuHeight
             visible: navigationController.currentViewState === navigationController.viewStateConnectionStatus
             themeManager: theme
             androidAutoFacade: _androidAutoFacade
@@ -357,7 +357,7 @@ ApplicationWindow {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.rightMargin: root.menuWidth
+            anchors.bottomMargin: root.menuHeight
             color: theme.colors.background
             visible: navigationController.currentViewState === navigationController.viewStateAAProjection ||
                      navigationController.currentViewState === navigationController.viewStateSettings
@@ -605,13 +605,6 @@ function mapToProjectionCoordinates(rawX, rawY) {
     var localX = Math.max(0, Math.min(frameWidth - 1, rawX - frameLeft))
     var localY = Math.max(0, Math.min(frameHeight - 1, rawY - frameTop))
 
-    console.log("MAP DEBUG webRtcActive:", webRtcActive,
-                "videoRect:", videoRect.x, videoRect.y, videoRect.width, videoRect.height,
-                "paintedWidth/Height:", projectionImage.paintedWidth, projectionImage.paintedHeight,
-                "image width/height:", projectionImage.width, projectionImage.height,
-                "frameLeft/Top:", frameLeft, frameTop,
-                "raw:", rawX, rawY, "-> local:", localX, localY)
-
     return { x: localX, y: localY }
 }
 
@@ -764,16 +757,10 @@ function mapToProjectionCoordinates(rawX, rawY) {
                     }
 
                     Image {
-                            id: projectionImage
-                        anchors.top: parent.top
-                        anchors.bottom: parent.bottom
-                        anchors.left: parent.left
-                        anchors.right: parent.right
+                        id: projectionImage
+                        anchors.fill: parent
 
-                        anchors.leftMargin: -15
-                        anchors.rightMargin: -13
-
-                        fillMode: Image.Stretch
+                        fillMode: Image.PreserveAspectFit
                         smooth: true
                         cache: false
                         source: "image://androidauto/projection?" + _androidAutoFacade.projectionFrameVersion
@@ -816,11 +803,8 @@ function mapToProjectionCoordinates(rawX, rawY) {
                         maximumTouchPoints: 10
 
                         onPressed: (touchPoints) => {
-    for (var i = 0; i < touchPoints.length; i++) {
-        console.log("RAW touch:", touchPoints[i].x, touchPoints[i].y, "window size:", width, height)
-    }
-    forwardTouchEvent("press", touchPoints)
-}
+                            forwardTouchEvent("press", touchPoints)
+                        }
                         onUpdated: (touchPoints) => forwardTouchEvent("move", touchPoints)
                         onReleased: (touchPoints) => forwardTouchEvent("release", touchPoints)
                         onCanceled: (touchPoints) => forwardTouchEvent("cancel", touchPoints)
@@ -856,7 +840,6 @@ function mapToProjectionCoordinates(rawX, rawY) {
 
                         onPressed: (mouse) => {
                             isPressed = true
-                            console.log("RAW mouse:", mouse.x, mouse.y, "window size:", width, height)
                             if (_touchForwarder) {
                                 var mapped = projectionSurface.mapToProjectionCoordinates(mouse.x, mouse.y)
                                 _touchForwarder.forwardMouseEvent("press", mapped.x, mapped.y)
