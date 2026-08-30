@@ -44,7 +44,7 @@ ApplicationWindow {
         !navigationController.settingsPanelVisible
     property bool aaOverlayVisible: true
     property bool powerDialogActive: false
-    property int menuWidth: 60
+    property int menuHeight: 60
     // Theme Manager - centralized theme control
     ThemeManager {
         id: theme
@@ -295,7 +295,7 @@ ApplicationWindow {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.bottomMargin: root.menuWidth
+            anchors.bottomMargin: root.menuHeight
             color: theme.colors.background
         }
         
@@ -344,7 +344,7 @@ ApplicationWindow {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.bottomMargin: root.menuWidth
+            anchors.bottomMargin: root.menuHeight
             visible: navigationController.currentViewState === navigationController.viewStateConnectionStatus
             themeManager: theme
             androidAutoFacade: _androidAutoFacade
@@ -357,7 +357,7 @@ ApplicationWindow {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.bottomMargin: root.menuWidth
+            anchors.bottomMargin: root.menuHeight
             color: theme.colors.background
             visible: navigationController.currentViewState === navigationController.viewStateAAProjection ||
                      navigationController.currentViewState === navigationController.viewStateSettings
