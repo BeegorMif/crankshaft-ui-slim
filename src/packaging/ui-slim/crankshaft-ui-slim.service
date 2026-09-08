@@ -36,6 +36,7 @@ StandardError=journal
 
 # User/session paths
 Environment="HOME=/var/lib/crankshaft"
+Environment="XAUTHORITY=/home/crankshaft/.Xauthority"
 Environment="XDG_CONFIG_HOME=/var/lib/crankshaft/slim-ui/.config"
 Environment="XDG_DATA_HOME=/var/lib/crankshaft/slim-ui/.local/share"
 Environment="XDG_STATE_HOME=/var/lib/crankshaft/slim-ui/.local/state"
