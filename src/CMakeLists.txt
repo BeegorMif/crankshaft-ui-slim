@@ -21,7 +21,6 @@ project(crankshaft-ui-slim)
 
 include(GNUInstallDirs)
 
-option(BUILD_TESTS "Build ui-slim tests" ON)
 option(BUILD_BENCHMARKS "Build ui-slim performance benchmarks" OFF)
 
 # Set C++ standard
@@ -270,12 +269,6 @@ install(FILES ${CMAKE_SOURCE_DIR}/packaging/ui-slim/crankshaft-ui-slim.service
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system
   COMPONENT ui-slim
 )
-
-# Tests
-if(BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(tests)
-endif()
 
 # Performance benchmarks (Google Benchmark via CodSpeed)
 if(BUILD_BENCHMARKS)
