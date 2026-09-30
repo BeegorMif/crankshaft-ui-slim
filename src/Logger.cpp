@@ -64,6 +64,14 @@ auto Logger::setLogFile(const QString& filePath) -> void {
     if (!dir.exists()) {
         dir.mkpath(QStringLiteral("."));
     }
+
+    QFile file(m_logFilePath);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        file.close();
+    } else {
+        QTextStream(stdout) << "Logger: failed to truncate log file for fresh start: "
+                            << m_logFilePath << Qt::endl;
+    }
 }
 
 auto Logger::debugContext(const QString& component, const QString& message,
