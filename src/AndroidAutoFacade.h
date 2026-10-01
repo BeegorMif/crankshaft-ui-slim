@@ -169,7 +169,6 @@ public:
     Q_INVOKABLE void retryConnection();
     // NOLINTEND(modernize-use-trailing-return-type)
 
-    Q_INVOKABLE void setNightMode(bool nightMode);
     void setImageProvider(AndroidAutoImageProvider *provider);
 
 signals:

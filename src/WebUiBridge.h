@@ -23,7 +23,6 @@ signals:
     void aaOverlayVisibleChanged(bool visible);
     void powerDialogActiveChanged(bool visible);
     void connectedChanged(bool connected);
-    void nightModeChanged(bool nightMode);
 
 private slots:
     void onConnected();
