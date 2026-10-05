@@ -271,7 +271,8 @@ ApplicationWindow {
         id: webUi
         profile: webUiProfile
         anchors.fill: parent
-        z: -1
+        z: 1
+        backgroundColor: "transparent"
         url: "http://localhost:3000"   // dev server for now; swap to a built qrc:/ path later
     }
     Item {
